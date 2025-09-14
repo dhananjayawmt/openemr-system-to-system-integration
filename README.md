@@ -113,12 +113,8 @@ LOG_LEVEL=INFO
 
 ## 4) Run the server
 
-Use the file you downloaded (`main_with_logs.py`) as `main.py` or run it directly by name:
-
 ```bash
-uvicorn main_with_logs:app --reload --port 8000 --env-file env
-# or if you copied/renamed to main.py:
-# uvicorn main:app --reload --port 8000 --env-file env
+uvicorn main:app --reload --port 8000 --env-file .env
 ```
 
 Optional HTTPS (if you have local certs):
