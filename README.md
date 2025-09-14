@@ -32,7 +32,7 @@ It signs a **JWT client assertion** with your private key, fetches a **system ac
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 python -m pip install -U pip
-pip install fastapi "uvicorn[standard]" httpx pyjwt cryptography python-dotenv
+python -m pip install -r requirements.txt
 ```
 
 ---
