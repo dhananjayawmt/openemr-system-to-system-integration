@@ -1,0 +1,188 @@
+{
+  "info": {
+    "_postman_id": "d2f63456-c40c-420e-a310-582fbed92976",
+    "name": "OpenEMR S2S (JWT) Python Proxy - Quick Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Tests for your FastAPI proxy that uses JWT client assertion to call OpenEMR."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-fetch token if missing (proxy caches it server-side).",
+          "if (!pm.environment.get('access_token')) {",
+          "  pm.sendRequest({ url: pm.environment.get('token_url'), method: 'POST' }, function (err, res) {",
+          "    try { var data = res.json(); if (data && data.access_token) pm.environment.set('access_token', data.access_token); } catch(e) {}",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{python_base}}/health",
+          "host": [
+            "{{python_base}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "JWKS (served by proxy)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{jwks_url}}",
+          "host": [
+            "{{jwks_url}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get/Refresh System Token (force=true)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let data = {};",
+              "try { data = pm.response.json(); } catch(e) {}",
+              "if (data && data.access_token) pm.environment.set('access_token', data.access_token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{token_url}}?force=true",
+          "host": [
+            "{{token_url}}"
+          ],
+          "query": [
+            {
+              "key": "force",
+              "value": "true"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "FHIR - CapabilityStatement (metadata)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/fhir+json"
+          }
+        ],
+        "url": {
+          "raw": "{{fhir_base_proxy}}/metadata",
+          "host": [
+            "{{fhir_base_proxy}}"
+          ],
+          "path": [
+            "metadata"
+          ]
+        }
+      }
+    },
+    {
+      "name": "FHIR - Patient Search",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/fhir+json"
+          }
+        ],
+        "url": {
+          "raw": "{{fhir_base_proxy}}/Patient?_count=5",
+          "host": [
+            "{{fhir_base_proxy}}"
+          ],
+          "path": [
+            "Patient"
+          ],
+          "query": [
+            {
+              "key": "_count",
+              "value": "5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "FHIR - Create Patient (sample)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/fhir+json"
+          }
+        ],
+        "url": {
+          "raw": "{{fhir_base_proxy}}/Patient",
+          "host": [
+            "{{fhir_base_proxy}}"
+          ],
+          "path": [
+            "Patient"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"resourceType\": \"Patient\",\n  \"name\": [\n    {\n      \"use\": \"official\",\n      \"family\": \"{{sample_patient_family}}\",\n      \"given\": [\n        \"{{sample_patient_given}}\"\n      ]\n    }\n  ],\n  \"gender\": \"unknown\"\n}"
+        }
+      }
+    },
+    {
+      "name": "FHIR - Generic passthrough (edit path & method)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/fhir+json"
+          }
+        ],
+        "url": {
+          "raw": "{{fhir_base_proxy}}/{{path}}",
+          "host": [
+            "{{fhir_base_proxy}}"
+          ],
+          "path": [
+            "{{path}}"
+          ]
+        }
+      }
+    }
+  ]
+}
