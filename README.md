@@ -64,7 +64,7 @@ n = b64u(nums.n.to_bytes((nums.n.bit_length() + 7) // 8, 'big'))
 e = b64u(nums.e.to_bytes((nums.e.bit_length() + 7) // 8, 'big'))
 
 kid = hashlib.sha256((n + e).encode()).hexdigest()[:32]
-jwks = {".keys": [{"kty": "RSA", "use": "sig", "alg": "RS384", "kid": kid, "n": n, "e": e}]}
+jwks = {"keys": [{"kty": "RSA", "use": "sig", "alg": "RS384", "kid": kid, "n": n, "e": e}]}
 open(".keys/jwks.json", "w").write(json.dumps(jwks, indent=2))
 print("kid:", kid)
 ```

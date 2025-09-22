@@ -28,8 +28,8 @@ SCOPE            = os.getenv("SCOPE", "system/Patient.read")
 if not CLIENT_ID:
     logger.warning("CLIENT_ID not set; set CLIENT_ID env variable")
 else:
-    logger.info("Config: site=%s, fhir_base=%s, token_url=%s, client_id=%s..., scope=%s",
-                SITE, FHIR_BASE, TOKEN_URL, CLIENT_ID[:8], SCOPE)
+    logger.info("\nConfig: site=%s\nfhir_base=%s\ntoken_url=%s\nclient_id=%s\nscope=%s",
+                SITE, FHIR_BASE, TOKEN_URL, CLIENT_ID, SCOPE)
 
 # cache
 _token: Dict[str, Any] = {"access_token": None, "exp": 0}
@@ -68,7 +68,7 @@ def jwks():
         raise HTTPException(404, "jwks.json not found")
     try:
         data = json.load(open(JWKS_PATH))
-        logger.debug("JWKS served with %d key(s)", len(data.get(".keys", [])))
+        logger.debug("JWKS served with %d key(s)", len(data.get("keys", [])))
         return JSONResponse(data)
     except Exception as e:
         logger.exception("Failed to read JWKS: %s", e)
